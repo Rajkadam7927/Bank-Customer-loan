@@ -1,0 +1,886 @@
+BANKING LOAN DATA ANALYSIS
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| code               |
+| information_schema |
+| mysql              |
+| performance_schema |
+| project_one        |
+| sys                |
+| yeshu              |
++--------------------+
+7 rows in set (0.05 sec)
+
+mysql> use project_one;
+Database changed
+
+______________________Data Visualization____________________________
+
+-------TOP 5 ROWS---------
+
+mysql> select * from lp
+    -> order by Loan_ID limit 5;
++-----------------+----------+--------+---------+------------+--------------+---------------+-----------------+-------------------+------------+------------------+----------------+---------------+-------------+
+| MyUnknownColumn | Loan_ID  | Gender | Married | Dependents | Education    | Self_Employed | ApplicantIncome | CoapplicantIncome | LoanAmount | Loan_Amount_Term | Credit_History | Property_Area | Loan_Status |
++-----------------+----------+--------+---------+------------+--------------+---------------+-----------------+-------------------+------------+------------------+----------------+---------------+-------------+
+|               0 | LP001003 | Male   | Yes     |          1 | Graduate     | No            |            4583 |              1508 |        128 |              360 |              1 | Rural         | N           |
+|               1 | LP001005 | Male   | Yes     |          0 | Graduate     | Yes           |            3000 |                 0 |         66 |              360 |              1 | Urban         | Y           |
+|               2 | LP001006 | Male   | Yes     |          0 | Not Graduate | No            |            2583 |              2358 |        120 |              360 |              1 | Urban         | Y           |
+|               3 | LP001008 | Male   | No      |          0 | Graduate     | No            |            6000 |                 0 |        141 |              360 |              1 | Urban         | Y           |
+|               4 | LP001011 | Male   | Yes     |          2 | Graduate     | Yes           |            5417 |              4196 |        267 |              360 |              1 | Urban         | Y           |
++-----------------+----------+--------+---------+------------+--------------+---------------+-----------------+-------------------+------------+------------------+----------------+---------------+-------------+
+5 rows in set (0.00 sec)
+
+
+-------LAST 5 ROWS-----------
+
+
+mysql> select * from lp
+    -> order by Loan_ID DESC limit 5;
++-----------------+----------+--------+---------+------------+-----------+---------------+-----------------+-------------------+------------+------------------+----------------+---------------+-------------+
+| MyUnknownColumn | Loan_ID  | Gender | Married | Dependents | Education | Self_Employed | ApplicantIncome | CoapplicantIncome | LoanAmount | Loan_Amount_Term | Credit_History | Property_Area | Loan_Status |
++-----------------+----------+--------+---------+------------+-----------+---------------+-----------------+-------------------+------------+------------------+----------------+---------------+-------------+
+|             471 | LP002990 | Female | No      |          0 | Graduate  | Yes           |            4583 |                 0 |        133 |              360 |              0 | Semiurban     | N           |
+|             470 | LP002984 | Male   | Yes     |          2 | Graduate  | No            |            7583 |                 0 |        187 |              360 |              1 | Urban         | Y           |
+|             469 | LP002983 | Male   | Yes     |          1 | Graduate  | No            |            8072 |               240 |        253 |              360 |              1 | Urban         | Y           |
+|             468 | LP002978 | Female | No      |          0 | Graduate  | No            |            2900 |                 0 |         71 |              360 |              1 | Rural         | Y           |
+|             467 | LP002974 | Male   | Yes     |          0 | Graduate  | No            |            3232 |              1950 |        108 |              360 |              1 | Rural         | Y           |
++-----------------+----------+--------+---------+------------+-----------+---------------+-----------------+-------------------+------------+------------------+----------------+---------------+-------------+
+5 rows in set (0.00 sec)
+
+
+--------------DESCRIIBE-----------------
+
+
+mysql> describe lp;
++-------------------+------+------+-----+---------+-------+
+| Field             | Type | Null | Key | Default | Extra |
++-------------------+------+------+-----+---------+-------+
+| MyUnknownColumn   | int  | YES  |     | NULL    |       |
+| Loan_ID           | text | YES  |     | NULL    |       |
+| Gender            | text | YES  |     | NULL    |       |
+| Married           | text | YES  |     | NULL    |       |
+| Dependents        | int  | YES  |     | NULL    |       |
+| Education         | text | YES  |     | NULL    |       |
+| Self_Employed     | text | YES  |     | NULL    |       |
+| ApplicantIncome   | int  | YES  |     | NULL    |       |
+| CoapplicantIncome | int  | YES  |     | NULL    |       |
+| LoanAmount        | int  | YES  |     | NULL    |       |
+| Loan_Amount_Term  | int  | YES  |     | NULL    |       |
+| Credit_History    | int  | YES  |     | NULL    |       |
+| Property_Area     | text | YES  |     | NULL    |       |
+| Loan_Status       | text | YES  |     | NULL    |       |
++-------------------+------+------+-----+---------+-------+
+14 rows in set (0.00 sec)
+
+
+________________________________________________________________________ANALYSIS______________________________________________________________________________
+
+
+How does gender impact loan approval rates?
+
+mysql> select Gender,Loan_Status,count(Loan_Status)AS Total from lp
+    -> group by Gender,Loan_Status
+    -> order by Total DESC;
++------------+-------------+-------+
+| Gender     | Loan_Status | Total |
++------------+-------------+-------+
+| Male       | Y           |   265 |
+| Male       | N           |   106 |
+| Female     | Y           |    59 |
+| Female     | N           |    33 |
+| Not define | N           |     5 |
+| Not define | Y           |     4 |
++------------+-------------+-------+
+6 rows in set (0.00 sec)
+
+
+In terms of loan approval rates, gender significantly influences the outcome. Among the applicants, males exhibit a higher approval rate, 
+with 265 loans approved. Conversely, females have a lower approval rate, with only 59 loans approved.
+
+________________________________________________________________________________________________________________________________________________________________
+
+
+
+Is there a correlation between marital status (Married) and loan approval?
+
+mysql> select Married,loan_status,count(Loan_Status)AS Total from lp
+    -> where Married='Yes'
+    -> group by Married,Loan_Status
+    -> order by Total DESC;
++---------+-------------+-------+
+| Married | loan_status | Total |
++---------+-------------+-------+
+| Yes     | Y           |   215 |
+| Yes     | N           |    78 |
++---------+-------------+-------+
+2 rows in set (0.00 sec)
+
+
+We present a clear demonstration of the approval rate for married individuals, with a total of 215 approvals recorded. However, it's 
+notable that out of the married applicants, 78 did not have their loans approved.
+
+
+What is the average income of loan applicants?
+
+
+mysql> select avg(ApplicantIncome)as Average from lp;
++-----------+
+| Average   |
++-----------+
+| 5183.5572 |
++-----------+
+1 row in set (0.02 sec)
+
+The average income of the applicant is $5,183.55.
+
+_____________________________________________________________________________________________________________________________________________________________
+
+Are self-employed individuals more likely to apply for larger loans?
+
+mysql> select Self_Employed,count(LoanAmount)AS Total from lp
+    -> where Self_Employed='Yes'
+    -> Group by Self_Employed
+    -> order by Total DESC;
++---------------+-------+
+| Self_Employed | Total |
++---------------+-------+
+| Yes           |    63 |
++---------------+-------+
+1 row in set (0.01 sec)
+
+_____________________________________________________________________________________________________________________________________________________________
+
+
+What is the average loan amount (LoanAmount) requested?
+
+mysql> select avg(LoanAmount) AS Average_of_loanAmount from lp;
++-----------------------+
+| Average_of_loanAmount |
++-----------------------+
+|              141.7500 |
++-----------------------+
+1 row in set (0.00 sec)
+
+
+The average loan amount is $141.75.
+_____________________________________________________________________________________________________________________________________________________________
+
+Which property area has the highest loan approval rates? 
+
+mysql> select loan_Status,max(Property_Area) AS Maximum_area from lp
+    -> group by Loan_status
+    -> having Loan_Status='Y'
+    -> order by Maximum_area DESC;
++-------------+--------------+
+| loan_Status | Maximum_area |
++-------------+--------------+
+| Y           | Urban        |
++-------------+--------------+
+1 row in set (0.00 sec)
+
+
+We have clearly shown that the maximum area for approved loan status is urban.
+
+_________________________________________________________________________________________________________________________________________________
+
+How does co-applicant income impact loan approval?
+
+mysql> select CoapplicantIncome,Loan_Status from lp
+    -> group by CoapplicantIncome,Loan_Status
+    -> order by CoapplicantIncome DESC;
++-------------------+-------------+
+| CoapplicantIncome | Loan_Status |
++-------------------+-------------+
+|             33837 | N           |
+|             20000 | N           |
+|             20000 | Y           |
+|             10968 | N           |
+|              8980 | Y           |
+|              8106 | Y           |
+|              7873 | Y           |
+|              7250 | N           |
+|              7210 | Y           |
+|              7166 | Y           |
+|              7101 | Y           |
+|              6666 | N           |
+|              6250 | Y           |
+|              5701 | Y           |
+|              5654 | Y           |
+|              5625 | Y           |
+|              5624 | Y           |
+|              5296 | Y           |
+|              5266 | N           |
+|              5064 | Y           |
+|              5000 | Y           |
+|              4983 | N           |
+|              4750 | N           |
+|              4750 | Y           |
+|              4648 | Y           |
+|              4600 | Y           |
+|              4595 | N           |
+|              4486 | Y           |
+|              4417 | Y           |
+|              4416 | N           |
+|              4416 | Y           |
+|              4333 | N           |
+|              4301 | Y           |
+|              4300 | Y           |
+|              4266 | N           |
+|              4232 | Y           |
+|              4196 | Y           |
+|              4167 | N           |
+|              4167 | Y           |
+|              3906 | Y           |
+|              3890 | N           |
+|              3850 | N           |
+|              3806 | Y           |
+|              3796 | Y           |
+|              3750 | Y           |
+|              3683 | Y           |
+|              3667 | Y           |
+|              3666 | N           |
+|              3600 | N           |
+|              3541 | Y           |
+|              3500 | Y           |
+|              3449 | N           |
+|              3447 | Y           |
+|              3440 | N           |
+|              3416 | Y           |
+|              3334 | Y           |
+|              3333 | Y           |
+|              3300 | Y           |
+|              3274 | Y           |
+|              3263 | Y           |
+|              3250 | Y           |
+|              3237 | N           |
+|              3167 | Y           |
+|              3150 | Y           |
+|              3066 | Y           |
+|              3053 | Y           |
+|              3022 | N           |
+|              3021 | Y           |
+|              3013 | Y           |
+|              3000 | N           |
+|              2934 | N           |
+|              2925 | N           |
+|              2917 | Y           |
+|              2900 | Y           |
+|              2859 | Y           |
+|              2845 | Y           |
+|              2840 | N           |
+|              2792 | Y           |
+|              2791 | Y           |
+|              2773 | Y           |
+|              2739 | Y           |
+|              2669 | Y           |
+|              2583 | N           |
+|              2569 | N           |
+|              2541 | N           |
+|              2531 | Y           |
+|              2524 | Y           |
+|              2500 | Y           |
+|              2466 | Y           |
+|              2458 | Y           |
+|              2451 | N           |
+|              2436 | Y           |
+|              2426 | N           |
+|              2417 | Y           |
+|              2416 | Y           |
+|              2405 | Y           |
+|              2400 | Y           |
+|              2358 | Y           |
+|              2340 | Y           |
+|              2336 | Y           |
+|              2333 | N           |
+|              2333 | Y           |
+|              2330 | Y           |
+|              2306 | Y           |
+|              2302 | Y           |
+|              2283 | Y           |
+|              2275 | Y           |
+|              2254 | N           |
+|              2253 | Y           |
+|              2250 | Y           |
+|              2232 | Y           |
+|              2223 | Y           |
+|              2210 | N           |
+|              2209 | Y           |
+|              2200 | N           |
+|              2188 | Y           |
+|              2168 | Y           |
+|              2167 | Y           |
+|              2160 | Y           |
+|              2157 | N           |
+|              2142 | N           |
+|              2118 | Y           |
+|              2100 | N           |
+|              2083 | N           |
+|              2083 | Y           |
+|              2079 | Y           |
+|              2064 | N           |
+|              2054 | Y           |
+|              2042 | Y           |
+|              2035 | Y           |
+|              2034 | Y           |
+|              2033 | Y           |
+|              2016 | Y           |
+|              2014 | Y           |
+|              2004 | Y           |
+|              2000 | Y           |
+|              1987 | N           |
+|              1983 | N           |
+|              1964 | Y           |
+|              1950 | Y           |
+|              1929 | Y           |
+|              1917 | N           |
+|              1915 | N           |
+|              1911 | N           |
+|              1881 | N           |
+|              1875 | Y           |
+|              1872 | N           |
+|              1868 | Y           |
+|              1863 | N           |
+|              1857 | Y           |
+|              1851 | Y           |
+|              1843 | N           |
+|              1843 | Y           |
+|              1842 | Y           |
+|              1840 | Y           |
+|              1833 | Y           |
+|              1820 | Y           |
+|              1803 | Y           |
+|              1800 | N           |
+|              1793 | Y           |
+|              1783 | Y           |
+|              1779 | Y           |
+|              1775 | Y           |
+|              1769 | Y           |
+|              1750 | Y           |
+|              1742 | Y           |
+|              1733 | N           |
+|              1719 | Y           |
+|              1717 | N           |
+|              1717 | Y           |
+|              1710 | N           |
+|              1700 | Y           |
+|              1695 | Y           |
+|              1668 | Y           |
+|              1667 | Y           |
+|              1666 | N           |
+|              1666 | Y           |
+|              1644 | Y           |
+|              1640 | Y           |
+|              1632 | Y           |
+|              1625 | N           |
+|              1625 | Y           |
+|              1619 | Y           |
+|              1600 | Y           |
+|              1591 | Y           |
+|              1560 | Y           |
+|              1526 | Y           |
+|              1522 | Y           |
+|              1516 | Y           |
+|              1508 | N           |
+|              1500 | N           |
+|              1483 | Y           |
+|              1459 | Y           |
+|              1451 | N           |
+|              1447 | Y           |
+|              1430 | N           |
+|              1430 | Y           |
+|              1425 | Y           |
+|              1417 | Y           |
+|              1411 | Y           |
+|              1400 | Y           |
+|              1387 | Y           |
+|              1376 | N           |
+|              1302 | Y           |
+|              1300 | Y           |
+|              1287 | N           |
+|              1280 | N           |
+|              1260 | Y           |
+|              1255 | N           |
+|              1229 | Y           |
+|              1213 | Y           |
+|              1210 | Y           |
+|              1167 | Y           |
+|              1126 | Y           |
+|              1086 | Y           |
+|              1083 | Y           |
+|              1041 | Y           |
+|              1040 | Y           |
+|              1032 | Y           |
+|              1030 | Y           |
+|              1014 | Y           |
+|              1000 | N           |
+|               997 | Y           |
+|               986 | Y           |
+|               923 | Y           |
+|               913 | Y           |
+|               830 | Y           |
+|               800 | Y           |
+|               736 | N           |
+|               700 | Y           |
+|               688 | Y           |
+|               536 | N           |
+|               505 | Y           |
+|               461 | Y           |
+|               242 | Y           |
+|               240 | Y           |
+|                16 | Y           |
+|                 0 | N           |
+|                 0 | Y           |
++-------------------+-------------+
+239 rows in set (0.00 sec)
+
+We clearly show that the co-applicant's income does not significantly affect the approval of the loan. For instance, a co-applicant 
+with an income of $20,000 had their loan approved. However, it is noteworthy that a co-applicant with an income of $33,837 had their loan 
+rejected.
+
+________________________________________________________________________________________________________________________________________________________
+
+What is the most common loan amount term chosen by applicants?
+
+
+
+
+mysql> select Loan_Amount_Term,count(Loan_Amount_Term) AS Most_Customer_Choise_Term from lp
+    -> group by Loan_Amount_Term
+    -> order by Most_Customer_Choise_Term DESC limit 1;
++------------------+---------------------------+
+| Loan_Amount_Term | Most_Customer_Choise_Term |
++------------------+---------------------------+
+|              360 |                       408 |
++------------------+---------------------------+
+1 row in set (0.00 sec)
+
+In this banking data, it is evident that 408 customers have chosen the banking Loan Amount Term option of 360 days.
+
+
+________________________________________________________________________________________________________________________________________________
+
+
+Is there a difference in loan approval rates between educated and non-educated applicants? 
+
+mysql> select Education,Loan_Status,count(loan_status) AS Total from lp
+    -> group by Education,Loan_Status
+    -> order by Total DESC;
++--------------+-------------+-------+
+| Education    | Loan_Status | Total |
++--------------+-------------+-------+
+| Graduate     | Y           |   269 |
+| Graduate     | N           |   109 |
+| Not Graduate | Y           |    59 |
+| Not Graduate | N           |    35 |
++--------------+-------------+-------+
+4 rows in set (0.00 sec)
+
+
+
+In this dataset, it's apparent that among graduates, 269 individuals have been approved for loans, while 109 graduates have not been approved. 
+Comparatively, among non-graduates, only 59 individuals have been approved, while 35 have not. This data clearly indicates that the approval 
+rate is higher among graduate individuals.
+
+______________________________________________________________________________________________________________________________________________________
+
+
+Are married individuals more likely to have a co-applicant ?
+
+mysql> select Married,ApplicantIncome,CoapplicantIncome from lp
+    -> where Married='Yes'
+    -> group by Married,ApplicantIncome,CoapplicantIncome
+    -> order by CoapplicantIncome DESC limit 10 ;
++---------+-----------------+-------------------+
+| Married | ApplicantIncome | CoapplicantIncome |
++---------+-----------------+-------------------+
+| Yes     |            1600 |             20000 |
+| Yes     |           12841 |             10968 |
+| Yes     |            3073 |              8106 |
+| Yes     |            9323 |              7873 |
+| Yes     |            6400 |              7250 |
+| Yes     |            7948 |              7166 |
+| Yes     |            2661 |              7101 |
+| Yes     |            2130 |              6666 |
+| Yes     |            2625 |              6250 |
+| Yes     |            6250 |              5654 |
++---------+-----------------+-------------------+
+10 rows in set (0.00 sec)
+We observe that married clients have an income of $1,600, whereas the co-applicant's income is $20,000, indicating that 
+the applicant's income is lower than that of the co-applicant.
+
+
+___________________________________________________________________________________________________________________________________________________
+
+
+Does the loan amount term  vary based on property area ?
+
+
+
+mysql> select Loan_Amount_Term,Property_Area from lp
+    -> group by Loan_Amount_Term,Property_Area
+    -> order by Loan_Amount_Term DESC;
++------------------+---------------+
+| Loan_Amount_Term | Property_Area |
++------------------+---------------+
+|              480 | Rural         |
+|              480 | Semiurban     |
+|              480 | Urban         |
+|              360 | Rural         |
+|              360 | Semiurban     |
+|              360 | Urban         |
+|              300 | Rural         |
+|              300 | Semiurban     |
+|              240 | Semiurban     |
+|              240 | Urban         |
+|              180 | Rural         |
+|              180 | Semiurban     |
+|              180 | Urban         |
+|              120 | Semiurban     |
+|              120 | Urban         |
+|               84 | Rural         |
+|               84 | Semiurban     |
+|               84 | Urban         |
+|               60 | Urban         |
+|               36 | Semiurban     |
++------------------+---------------+
+20 rows in set (0.00 sec)
+
+
+The loan amount term varies based on the property area. In rural areas, 480 loan amount terms have the maximum frequency. 
+Similarly, in semi-urban and urban areas, the property areas with the maximum loan amount terms are also observed. 
+The difference in loan amount terms among urban, semi-urban, and rural areas is minimal. 
+
+__________________________________________________________________________________________________________________________________________________
+
+
+Are there any significant differences in loan approval rates across different combinations of  marital status?
+
+
+mysql> select Married,Loan_Status,count(Loan_Status) AS Total from lp
+    -> group by Married,Loan_Status
+    -> order by Total DESC;
++---------+-------------+-------+
+| Married | Loan_Status | Total |
++---------+-------------+-------+
+| Yes     | Y           |   215 |
+| No      | Y           |   113 |
+| Yes     | N           |    78 |
+| No      | N           |    66 |
++---------+-------------+-------+
+4 rows in set (0.00 sec)
+
+Among the applicants, 215 married individuals have been approved for loans by the bank, while 114 unmarried individuals have also been approved. 
+Additionally, 78 married individuals have not been approved for loans, 
+and 66 unmarried individuals have faced the same outcome.
+
+
+___________________________________________________________________________________________________________________________________________________
+
+find the top 10 loan ID (loan amount wise)?
+
+mysql> select Loan_ID from lp
+    -> order by LoanAmount DESC limit 10;
++----------+
+| Loan_ID  |
++----------+
+| LP002813 |
+| LP002191 |
+| LP002547 |
+| LP002959 |
+| LP002101 |
+| LP002693 |
+| LP001996 |
+| LP001907 |
+| LP002386 |
+| LP002699 |
++----------+
+10 rows in set (0.01 sec)
+
+
+The loan with ID LP002813 has taken the maximum amount from us, followed by LP002191, which stands as the second-highest loan taken from us. 
+The third highest loan taken from us is LP002547, and so on.
+
+_____________________________________________________________________________________________________________________________________________________
+
+
+
+15)find the gradution education & not self employed top 10 loan amount ?
+
+mysql> select LoanAmount from lp
+    -> where Education ='Graduate' AND Self_Employed= 'No'
+    -> order by LoanAmount DESC limit 10;
++------------+
+| LoanAmount |
++------------+
+|        570 |
+|        500 |
+|        496 |
+|        480 |
+|        436 |
+|        349 |
+|        324 |
+|        315 |
+|        312 |
+|        311 |
++------------+
+10 rows in set (0.00 sec)
+
+
+The highest loan amount taken from us is $570, followed by the second highest at $500, and the third highest at $496, and so forth.
+
+_________________________________________________________________________________________________________________________________________________________
+
+
+find the customer base who has 10000+ home income and its loan status is apporved ?
+
+mysql> select ApplicantIncome,Loan_Status,Loan_ID from lp
+    -> where ApplicantIncome>10000 AND Loan_Status='Y'
+    -> order by ApplicantIncome DESC;
++-----------------+-------------+----------+
+| ApplicantIncome | Loan_Status | Loan_ID  |
++-----------------+-------------+----------+
+|           63337 | Y           | LP002101 |
+|           39147 | Y           | LP001640 |
+|           37719 | Y           | LP002422 |
+|           19484 | Y           | LP002813 |
+|           18165 | Y           | LP002731 |
+|           17500 | Y           | LP002699 |
+|           17263 | Y           | LP002582 |
+|           16692 | Y           | LP002501 |
+|           16667 | Y           | LP002531 |
+|           16666 | Y           | LP002855 |
+|           16525 | Y           | LP002527 |
+|           16120 | Y           | LP002938 |
+|           15759 | Y           | LP002194 |
+|           14880 | Y           | LP002364 |
+|           14866 | Y           | LP001516 |
+|           14583 | Y           | LP001401 |
+|           14583 | Y           | LP001907 |
+|           13262 | Y           | LP002634 |
+|           12876 | Y           | LP002386 |
+|           12000 | Y           | LP002959 |
+|           11757 | Y           | LP001508 |
+|           11417 | Y           | LP001369 |
+|           11146 | Y           | LP001891 |
+|           10833 | Y           | LP002541 |
+|           10750 | Y           | LP001233 |
+|           10408 | Y           | LP001422 |
++-----------------+-------------+----------+
+26 rows in set (0.00 sec)
+
+
+Applicant income of $63,337 with loan ID LP002101 and applicant income of $39,147 with loan ID LP001640 both received loan approvals. 
+The observation that the maximum number of applicant incomes exceeding $10,000 correlates strongly with a high likelihood of loan status
+approval.
+
+____________________________________________________________________________________________________________________________________________________
+
+
+
+18) what is average of loan amount ,property area wise ?
+
+
+
+mysql> select  Property_Area,avg(LoanAmount) AS Average_of_LoanAmount from lp
+    -> group by Property_Area
+    -> order by Average_of_LoanAmount DESC ;
++---------------+-----------------------+
+| Property_Area | Average_of_LoanAmount |
++---------------+-----------------------+
+| Rural         |              149.7704 |
+| Semiurban     |              140.3617 |
+| Urban         |              136.2349 |
++---------------+-----------------------+
+3 rows in set (0.00 sec)
+
+
+In the rural area, the average property area is notably high at $149.77. In comparison, the average loan amount in the semi-urban area is $140.36, 
+and in the urban area, it is $136.23. It's evident that the average loan amount in the rural area surpasses that of both semi-urban and 
+urban areas, with the semi-urban area having a lower average than the rural area, and the urban area having an even lower average compared 
+to both rural and semi-urban areas.
+
+
+_________________________________________________________________________________________________________________________________________________________
+
+
+
+find the income is less than 1000 and loan status is not apporved count it ?
+
+
+mysql> select ApplicantIncome,Loan_Status from lp
+    -> where ApplicantIncome <1000 AND Loan_Status='N';
++-----------------+-------------+
+| ApplicantIncome | Loan_Status |
++-----------------+-------------+
+|             150 | N           |
++-----------------+-------------+
+1 row in set (0.00 sec)
+
+
+
+The applicant with an income of $150 did not have their loan status approved by the bank.
+
+__________________________________________________________________________________________________________________________________________________________
+
+find the loan_id gender is male and unmarried loan is and his income is greater than 10000 .
+
+mysql> select Loan_ID,Gender,ApplicantIncome,Married from lp
+    -> where Gender='Male' AND ApplicantIncome>10000 AND Married ='No'
+    -> ;
++----------+--------+-----------------+---------+
+| Loan_ID  | Gender | ApplicantIncome | Married |
++----------+--------+-----------------+---------+
+| LP001492 | Male   |           14999 | No      |
+| LP001656 | Male   |           12000 | No      |
+| LP001673 | Male   |           11000 | No      |
+| LP001844 | Male   |           16250 | No      |
+| LP001996 | Male   |           20233 | No      |
+| LP002386 | Male   |           12876 | No      |
+| LP002403 | Male   |           10416 | No      |
+| LP002422 | Male   |           37719 | No      |
++----------+--------+-----------------+---------+
+8 rows in set (0.00 sec)
+
+
+The loan with ID LP001492 belongs to a male applicant with an income of $14,999 and a marital status of "No." Similarly, LP001656, also 
+belonging to a male applicant, has an income of $12,000 and a marital status of "No." And so on.
+
+
+____________________________________________________________________________________________________________________________________________________
+
+find the loan ID has maximum income but loan status not approved Top 100 ?
+
+mysql> select Loan_ID from lp
+    -> where Loan_Status='N'
+    -> order by ApplicantIncome DESC limit 100;
++----------+
+| Loan_ID  |
++----------+
+| LP001637 |
+| LP001996 |
+| LP002191 |
+| LP002547 |
+| LP001844 |
+| LP001492 |
+| LP001859 |
+| LP001020 |
+| LP001656 |
+| LP001186 |
+| LP001673 |
+| LP001451 |
+| LP002403 |
+| LP001519 |
+| LP001708 |
+| LP002050 |
+| LP001531 |
+| LP002832 |
+| LP002140 |
+| LP002067 |
+| LP002473 |
+| LP002315 |
+| LP001562 |
+| LP001043 |
+| LP002301 |
+| LP001370 |
+| LP002379 |
+| LP001633 |
+| LP002941 |
+| LP002602 |
+| LP001528 |
+| LP002181 |
+| LP002862 |
+| LP002328 |
+| LP001813 |
+| LP001849 |
+| LP001657 |
+| LP002931 |
+| LP002652 |
+| LP001225 |
+| LP001421 |
+| LP002142 |
+| LP001497 |
+| LP001732 |
+| LP001955 |
+| LP002776 |
+| LP001038 |
+| LP002161 |
+| LP001097 |
+| LP002683 |
+| LP001179 |
+| LP002367 |
+| LP001003 |
+| LP001489 |
+| LP001577 |
+| LP002990 |
+| LP002236 |
+| LP001938 |
+| LP001603 |
+| LP002086 |
+| LP002505 |
+| LP001241 |
+| LP002912 |
+| LP001164 |
+| LP001493 |
+| LP001222 |
+| LP002493 |
+| LP001910 |
+| LP002448 |
+| LP002151 |
+| LP002318 |
+| LP001379 |
+| LP001255 |
+| LP001256 |
+| LP002467 |
+| LP001119 |
+| LP002637 |
+| LP002585 |
+| LP002789 |
+| LP002723 |
+| LP002625 |
+| LP002545 |
+| LP002435 |
+| LP001036 |
+| LP001870 |
+| LP001836 |
+| LP001702 |
+| LP001883 |
+| LP002684 |
+| LP001197 |
+| LP001050 |
+| LP002768 |
+| LP002443 |
+| LP001751 |
+| LP001228 |
+| LP002277 |
+| LP001095 |
+| LP002841 |
+| LP001665 |
+| LP001565 |
++----------+
+100 rows in set (0.00 sec)
+
+
+The Loan_IDs mentioned above, were not approved despite having the highest applicant incomes.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
